@@ -1,0 +1,58 @@
+version: "3.9"
+ 
+services:
+  mongodb-primary:
+    image: docker.io/bitnami/mongodb:latest
+    container_name: mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_master_data:/bitnami/mongodb
+    restart: unless-stopped
+ 
+  mongodb-secondary:
+    image: docker.io/bitnami/mongodb:latest
+    container_name: mongodb-secondary
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_PRIMARY_HOST=mongodb-primary
+      - MONGODB_PRIMARY_ROOT_USER=root
+      - MONGODB_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    volumes:
+      - mongodb_secondary_data:/bitnami/mongodb
+    restart: unless-stopped
+ 
+  mongodb-arbiter:
+    image: docker.io/bitnami/mongodb:latest
+    container_name: mongodb-arbiter
+    depends_on:
+      - mongodb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mongodb-arbiter
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_PRIMARY_HOST=mongodb-primary
+      - MONGODB_PRIMARY_ROOT_USER=root
+      - MONGODB_PRIMARY_ROOT_PASSWORD=password123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    volumes:
+      - mongodb_arbiter_data:/bitnami/mongodb
+    restart: unless-stopped
+ 
+volumes:
+  mongodb_master_data:
+  mongodb_secondary_data:
+  mongodb_arbiter_data:
+ 
