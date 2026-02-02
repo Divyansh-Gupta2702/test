@@ -1,0 +1,28 @@
+version: "3.9"
+ 
+services:
+  valkey:
+    image: valkey/valkey:9.0.0
+    container_name: valkey_prod
+    restart: always
+    command:
+      - valkey-server
+      - --requirepass
+      - ${VALKEY_PASSWORD}
+      - --appendonly
+      - "yes"
+    environment:
+      VALKEY_PASSWORD: qwertyuiopasdfghjkl
+    volumes:
+      - valkey_data:/data
+    ports:
+      - "6372:6379"
+    networks:
+      - valkey_net
+ 
+volumes:
+  valkey_data:
+ 
+networks:
+  valkey_net:
+    driver: bridge
